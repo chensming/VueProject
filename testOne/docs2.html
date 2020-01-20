@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>
+        test1
+    </title>
+</head>
+
+<body>
+    <div id="app">
+        <h1>{{title}}</h1>
+        <button @click="randomTitle()">改变title</button>
+        <button @click="destroyVm()">销毁实例</button>
+    </div>
+    <script src="vue.js"></script>
+    <script>
+        var vm = new Vue({
+            el: '#app',
+            data() {
+                return {
+                    title: 'hello java'
+                }
+            },
+            methods: {
+                randomTitle() {
+                    this.title = 'hello' + ['China', 'World', 'Universe'][Math.floor(Math.random() * 2.999)];
+                },
+                destroyVm() {
+                    this.$destroy();
+                }
+            },
+            beforeCreate() {
+                console.log('beforeCreate')
+            },
+            created() {
+                console.log('created')
+            },
+            beforeMount() {
+                console.log('beforeMount')
+            },
+            mounted() {
+                console.log('mounted')
+            },
+            // 数据更新时，在虚拟DOM状态变化之前
+            beforeUpdate() {
+                console.log('before update')
+            },
+            // 虚拟DOM被重新渲染之后
+            updated() {
+                console.log('updated')
+            },
+            // 实例销毁之前，此时实例依然可用
+            beforeDestroy() {
+                console.log('before destroy')
+            },
+            // 实例销毁后，此时Vue实例及其子实例将完全解绑
+            destroyed() {
+                console.log('destroyed')
+            }
+        })
+    </script>
+</body>
+
+</html>

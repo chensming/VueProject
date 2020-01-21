@@ -1,62 +1,67 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>test16</title>
+  <title>test6</title>
 </head>
 <body>
+<script src="https://unpkg.com/vue/dist/vue.js"></script>
+<script src="https://unpkg.com/vue-router/dist/vue-router.js"></script>
 <div id="app">
-  <h2>用户列表</h2>
-  <button @click="createUser">创建用户</button>
-  <button @click="reverse">倒序数组</button>
   <ul>
-    <!-- index作为第二个参数，用以标识下标 -->
-    <li v-for="(user, index) in users">
-      用户{{ index + 1 }}
+    <!-- 默认字符串为路径参数 -->
+    <li @click="redirectByPath('/')">Home</li>
+    <li>
+      <!-- 指定参数为路径 -->
+      <div @click="redirectByPath('/about')">About</div>
       <ul>
-        <!-- key作为第二个参数，用以标识键名 -->
-        <li v-for="(value, key) of user">
-          <strong style="display: inline-block;width: 60px;">{{ key }}:</strong>
-          <span>{{ value }}</span>
-        </li>
+        <!-- 嵌套路由-->
+        <li @click="redirectByPath('/about/author')">About - Author</li>
+        <!-- 嵌套路由, 动态路由, 当使用path时, params参数不生效 -->
+        <li @click="redirectByPath('/about/email', { email: lonelydawn@sina.com' })">About - Email</li>
+        <!-- 嵌套路由, 动态路由, 可以直接将参数写入path -->
+        <li @click="redirectByPath('/about/email/lonelydawn@sina.com')">About - Email</li>
+        <!-- 嵌套路由, 动态路由, 使用命名路由跳转视图 -->
+        <li @click="redirectByName('Email', { email: 'singledawn@sina.com' })">About - Email</li>
       </ul>
     </li>
   </ul>
+  <router-view></router-view>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.min.js"></script>
 <script type="text/javascript">
-  let vm = new Vue({
-    el: '#app',
-    data () {
-      return {
-        users: []
+  let Home = { template: '<h1>This is Home!</h1>' } // Home组件
+  let About = { // About组件
+    template: '<div>' + 
+    '<h1>This is About!</h1>' + 
+    '<router-view></router-view>' +  // 嵌套的动态视图区
+    '</div>'
+  }
+  let Author = { template: '<p>Author: lonelydawn</p>' }
+  let Email = { template: '<p>Email: {{ $route.params.email }}</p>' }
+  let routes = [ // 定义路由规则, 每一个路由规则应该映射一个视图组件
+    { path: '/', component: Home },
+    { 
+      path: '/about',
+      component: About,
+      children: [ // 嵌套子路由
+        { name: 'Author', path: 'author', component: Author },
+        { name: 'Email', path: 'email/:email', component: Email }
+      ]
+    }
+  ]
+  let router = new VueRouter({ // 创建VueRouter实例, 并传入routes配置
+    routes
+  })
+  let app = new Vue({
+    methods: {
+      redirectByPath (path, params) {
+        this.$router.push({ path, params })
+      },
+      redirectByName (name, params) {
+        this.$router.push({ name, params })
       }
     },
-    methods: {
-      random (factor, base) { // 根据乘积因子和基数生成随机整数
-        return Math.floor(Math.random() * (factor || 1)) + (base || 0)
-      },
-      createUser () {
-        // 获取 name 大写首字母
-        let fLetter = 'BJHK'[this.random(3.999)]
-        // 随机截取 name 字符串
-        let nameStr = 'abcdefghijklmnopqrstuvwxyz'
-        let bLetters = nameStr.substr(this.random(19.999), this.random(3.999, 3))
-        let user = {
-          name: fLetter + bLetters,
-          age: this.random(5.999, 25),
-          city: ['Chicago', 'Sydney', 'ShenZhen', 'HangZhou'][this.random(3.999)]
-        }
-        console.log('--------------- 创建用户 ---------------\n', user)
-        this.users.push(user)
-      },
-      reverse () {
-        console.log('--------------- 倒序列表 ---------------')
-        console.log('Before:', this.users.map(user => user.name))
-        this.users.reverse()
-        console.log('After:', this.users.map(user => user.name))
-      }
-    }
-  })
+    router
+  }).$mount('#app')
 </script>
 </body>
 </html>
